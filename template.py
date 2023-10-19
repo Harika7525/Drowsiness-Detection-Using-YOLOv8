@@ -10,7 +10,7 @@ project_name = "Drowsiness_Detection"
 list_of_files = [
     ".github/workflows/.gitkeep",
     "data/.gitkeep",
-    f"{project_name}/components/__init__.py",
+    f"{project_name}/component/__init__.py",
     f"{project_name}/__init__.py",
     f"{project_name}/component/data_ingestion.py",
     f"{project_name}/component/data_validator.py",
