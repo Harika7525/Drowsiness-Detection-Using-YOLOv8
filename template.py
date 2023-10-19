@@ -26,6 +26,7 @@ list_of_files = [
     f"{project_name}/pipeline/training_pipeline.py",
     f"{project_name}/utils/__init__.py",
     f"{project_name}/utils/mian_utils.py",
+    "research/trails.ipynb",
     "templates/index.html",
     "app.py",
     "Dockerfile",
@@ -43,7 +44,7 @@ for filepath in list_of_files:
         logging.info(f"Creating directory: {filedir} for the file {filename}")
 
     if (not os.path.exists(filename)) or (os.path.getsize(filename=filename) == 0):
-        with open(filepath,"w") as f:
+        with open(filepath, "w") as f:
             pass
             logging.info(f"Creating empty file: {filename}")
     else:
