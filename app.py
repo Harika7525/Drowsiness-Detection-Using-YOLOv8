@@ -1,4 +1,3 @@
-import imp
 from Drowsiness_Detection.pipeline.training_pipeline import TrainPipeline
 
 obj = TrainPipeline()
