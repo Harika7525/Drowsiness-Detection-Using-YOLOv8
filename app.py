@@ -1,4 +1,5 @@
-import sys
-from Drowsiness_Detection.logger import logging
-from Drowsiness_Detection.exception import AppException
+import imp
+from Drowsiness_Detection.pipeline.training_pipeline import TrainPipeline
 
+obj = TrainPipeline()
+obj.run_pipeline()
