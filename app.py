@@ -1,74 +1,64 @@
-import sys, os
-from Drowsiness_Detection.pipeline.training_pipeline import TrainPipeline
-from Drowsiness_Detection.utils.mian_utils import decodeImage, encodeImageIntoBase64
-from flask import Flask, request, jsonify, render_template, Response
-from flask_cors import CORS, cross_origin
+import os
+from pathlib import Path
+
+from ultralytics import YOLO
+from utils import (
+    load_model,
+    infer_uploaded_image,
+    infer_uploaded_video,
+    infer_uploaded_webcam,
+)
+
 from Drowsiness_Detection.constant.application import APP_HOST, APP_PORT
 
 
-app = Flask(__name__)
-CORS(app)
+import streamlit as st
 
 
-class ClientApp:
-    def __init__(self):
-        self.filename = "inputImage.jpg"
+# setting page layout
+st.set_page_config(
+    page_title="Drowsiness Detection using YOLOv5",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+
+# Home Page Heading
+st.title("Drowsiness Detection using YOLOv5")
+
+# sidebar
+st.sidebar.header("DL Model Config")
 
 
-@app.route("/train")
-def trainRoute():
-    obj = TrainPipeline()
-    obj.run_pipeline()
-    return "Training Successfull!!"
+# model options
+task_type = st.sidebar.selectbox("Select Task", ["Detection"])
 
 
-@app.route("/")
-def home():
-    return render_template("index.html")
+confidence = float(st.sidebar.slider("Select Model Confidence", 30, 100, 50)) / 100
+
+model_path = os.path.join("best.pt")
 
 
-@app.route("/predict", methods=["POST", "GET"])
-@cross_origin()
-def predictRoute():
-    try:
-        image = request.json["image"]
-        decodeImage(image, clApp.filename)
+# load pretrained DL model
+try:
+    model = YOLO(model_path)
+except Exception as e:
+    st.error(f"Unable to load model. Please check the specified path: {model_path}")
+    st.error(f"Exception: {e}")
 
-        os.system(
-            "cd yolov5/ && python detect.py --weights my_model.pt --img 416 --conf 0.5 --source ../data/inputImage.jpg"
-        )
+# Source
+SOURCES_LIST = ["Image", "Video", "Webcam"]
 
-        opencodedbase64 = encodeImageIntoBase64("yolov5/runs/detect/exp/inputImage.jpg")
-        result = {"image": opencodedbase64.decode("utf-8")}
-        os.system("rm -rf yolov5/runs")
+# image/video options
+st.sidebar.header("Image/Video Config")
+source_selectbox = st.sidebar.selectbox("Select Source", SOURCES_LIST)
 
-    except ValueError as val:
-        print(val)
-        return Response("Value not found inside  json data")
-    except KeyError:
-        return Response("Key value error incorrect key passed")
-    except Exception as e:
-        print(e)
-        result = "Invalid input"
+source_img = None
 
-    return jsonify(result)
-
-
-@app.route("/live", methods=["GET"])
-@cross_origin()
-def predictLive():
-    try:
-        os.system(
-            "cd yolov5/ && python detect.py --weights my_model.pt --img 416 --conf 0.5 --source 0"
-        )
-        os.system("rm -rf yolov5/runs")
-        return "Camera starting!!"
-
-    except ValueError as val:
-        print(val)
-        return Response("Value not found inside  json data")
-
-
-if __name__ == "__main__":
-    clApp = ClientApp()
-    app.run(host=APP_HOST, port=APP_PORT)
+if source_selectbox == SOURCES_LIST[0]:  # Image
+    infer_uploaded_image(confidence, model)
+elif source_selectbox == SOURCES_LIST[1]:  # Video
+    infer_uploaded_video(confidence, model)
+elif source_selectbox == SOURCES_LIST[2]:  # Webcam
+    infer_uploaded_webcam(confidence, model)
+else:
+    st.error("Currently only 'Image' and 'Video' source are implemented")
