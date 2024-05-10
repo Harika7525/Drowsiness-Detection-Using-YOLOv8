@@ -17,13 +17,13 @@ import streamlit as st
 
 # setting page layout
 st.set_page_config(
-    page_title="Drowsiness Detection using YOLOv5",
+    page_title="Drowsiness Detection using YOLOv8",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 # Home Page Heading
-st.title("Drowsiness Detection using YOLOv5")
+st.title("Drowsiness Detection using YOLOv8")
 
 # sidebar
 st.sidebar.header("DL Model Config")
